@@ -1,6 +1,6 @@
 '''
 A demonstration that N-1 electron WFs created by the application of the annihilation
-operator of an arbitrary CAS spinorbital are not spatially-symmetric.
+operator of an arbitrary CAS spinorbital are spatially-symmetric.
 '''
 
 import pyscf
@@ -24,21 +24,26 @@ na, nb = 3, 3
 mycas = myhf.CASCI(no, ne)
 mycas.kernel()
 
+cas_labels = labels[mycas.ncore:mycas.ncore+no]
+
 ci = mycas.fcisolver.ci
 # the fcisolver sets the value of the irrep label id to which the solution belongs
-ci_symd = addons.symmetrize_wfn(ci, 6, (na, nb), labels[mycas.ncore:], wfnsym=mycas.fcisolver.wfnsym)
+ci_symd = addons.symmetrize_wfn(ci, 6, (na, nb), cas_labels, wfnsym=mycas.fcisolver.wfnsym)
 # if that wfnsym label is indeed correct, the above call should only have zeroed identically zero elements in the ci array
 print("Overlap of symmetrized and non-symmetrized N elec ci vectors:", np.dot(ci.flatten(), ci_symd.flatten()))
 assert np.allclose(ci, ci_symd) # this passes
 print('N electron WF has symmetry label', mycas.fcisolver.wfnsym)
 
+print(cas_labels)
+
 # now apply the annihilator for an arbitrary MO (0-indexed within CAS)
 iorb_des = 3
-orb_des_label = labels[iorb_des+mycas.ncore]
+orb_des_label = cas_labels[iorb_des]
 print("Annihilated orbital sym label", orb_des_label)
 ci_n_minus_1 = addons.des_a(ci, 6, (na, nb), iorb_des)
+ci_n_minus_1/=np.linalg.norm(ci_n_minus_1)
 na -= 1
 
-ci_n_minus_1_symd = addons.symmetrize_wfn(ci_n_minus_1, 6, (na, nb), labels[mycas.ncore:], wfnsym=orb_des_label)
+ci_n_minus_1_symd = addons.symmetrize_wfn(ci_n_minus_1, 6, (na, nb), cas_labels, wfnsym=orb_des_label)
 print("Overlap of symmetrized and non-symmetrized N-1 elec ci vectors:", np.dot(ci_n_minus_1.flatten(), ci_n_minus_1_symd.flatten()))
-assert np.allclose(ci_n_minus_1, ci_n_minus_1_symd) # this fails
+assert np.allclose(ci_n_minus_1, ci_n_minus_1_symd) # this passes
