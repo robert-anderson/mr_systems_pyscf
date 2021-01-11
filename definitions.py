@@ -28,7 +28,7 @@ data = {
             'charge': 0,
             'spin': 0
         },
-        # remember: occupied and vrtual orbital indices are 1-based!
+        # remember: occupied and virtual orbital indices are 1-based!
         'occ_orbs': (4, 5, 6),
         'vrt_orbs': (7, 8, 9),
     },
@@ -46,7 +46,7 @@ data = {
             'charge': 0,
             'spin': 0
         },
-        # remember: occupied and vrtual orbital indices are 1-based!
+        # remember: occupied and virtual orbital indices are 1-based!
         'occ_orbs': (28, 29, 34, 35, 36, 37, 38, 39, 40, 41, 42, 46),
         'vrt_orbs': (47, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 87),
     },
@@ -74,7 +74,7 @@ data = {
             'charge': 2,
             'spin': 0
         },
-        # remember: occupied and vrtual orbital indices are 1-based!
+        # remember: occupied and virtual orbital indices are 1-based!
         'occ_orbs': (28, 29, 34, 35, 36, 37, 38, 39, 40, 41, 42, 46),
         'vrt_orbs': (47, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 87),
     },

@@ -111,6 +111,6 @@ for irow, iorb in enumerate(range(mc.ncas)):
     data['etot'].append(sum(emr))
 
 df = pd.DataFrame(data)
-df.sort_values(by=['etot'])
+df.sort_values(by=['etot'], inplace=True)
 print('\nResults sorted by total energy:')
 print(df)
