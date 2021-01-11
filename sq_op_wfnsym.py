@@ -28,20 +28,17 @@ ci = mycas.fcisolver.ci
 # the fcisolver sets the value of the irrep label id to which the solution belongs
 ci_symd = addons.symmetrize_wfn(ci, 6, (na, nb), labels[mycas.ncore:], wfnsym=mycas.fcisolver.wfnsym)
 # if that wfnsym label is indeed correct, the above call should only have zeroed identically zero elements in the ci array
+print("Overlap of symmetrized and non-symmetrized N elec ci vectors:", np.dot(ci.flatten(), ci_symd.flatten()))
 assert np.allclose(ci, ci_symd) # this passes
 print('N electron WF has symmetry label', mycas.fcisolver.wfnsym)
 
 # now apply the annihilator for an arbitrary MO (0-indexed within CAS)
 iorb_des = 3
+orb_des_label = labels[iorb_des+mycas.ncore]
+print("Annihilated orbital sym label", orb_des_label)
 ci_n_minus_1 = addons.des_a(ci, 6, (na, nb), iorb_des)
 na -= 1
 
-symfound = False
-for ilabel in range(max(labels)):
-    ci_n_minus_1_symd = addons.symmetrize_wfn(ci_n_minus_1, 6, (na, nb), labels[mycas.ncore:], wfnsym=ilabel)
-    if np.allclose(ci_n_minus_1, ci_n_minus_1_symd):
-        print("N-1 electron WF has symmetry label", ilabel)
-        symfound = True
-        break
-
-if not symfound: print("N-1 electron WF belongs to no point group")
+ci_n_minus_1_symd = addons.symmetrize_wfn(ci_n_minus_1, 6, (na, nb), labels[mycas.ncore:], wfnsym=orb_des_label)
+print("Overlap of symmetrized and non-symmetrized N-1 elec ci vectors:", np.dot(ci_n_minus_1.flatten(), ci_n_minus_1_symd.flatten()))
+assert np.allclose(ci_n_minus_1, ci_n_minus_1_symd) # this fails

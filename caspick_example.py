@@ -5,7 +5,6 @@ from definitions import data as defs
 '''
 Example 1
     p shells of the nitrogen dimer
-'''
 corr_ao_labels = [
    '0 N 2px', '0 N 2py', '0 N 2pz',
    '1 N 2px', '1 N 2py', '1 N 2pz']
@@ -20,6 +19,7 @@ cp = CasPicker(rhf, corr_ao_labels)
 
 cp.plot('occ')
 cp.plot('vrt')
+'''
 
 
 '''
@@ -38,7 +38,7 @@ mol = M(**defs[system_name]['mol_kwargs'])
 rhf = scf.RHF(mol)
 rhf.kernel()
 
-cp = CasPicker(rhf, corr_ao_labels, (-2.5, 0.4))
+cp = CasPicker(rhf, corr_ao_labels, (-2.5, 0.15))
 
 cp.plot('occ')
 cp.plot('vrt')
