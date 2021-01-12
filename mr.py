@@ -30,10 +30,20 @@ mc.kernel()
 mrpt.NEVPT(mc).kernel()
 
 # target anion (-1) or cation (1)
-tgt_charge = 1
+tgt_charge = -1
 # target a particular spin sector of the ion
 tgt_spin = 1
-tgt_spin_channel = int(tgt_spin>0)
+
+
+'''
+tgt_spin_channel is the element of the nelec 2-tuple that is incremented or decremented
+0 (alpha) :
+    if tgt_spin is >=0 and the charge is <0 (nelec[0] gets incremented) OR
+    if tgt_spin is <0 and the charge is >0 (nelec[0] gets decremented)
+1 (beta) :
+    else
+'''
+tgt_spin_channel = int(tgt_spin*tgt_charge>=0)
 
 assert tgt_charge in (-1, 1)
 sqops = (fci.addons.des_a, fci.addons.des_b) if tgt_charge==1 else (fci.addons.cre_a, fci.addons.cre_b)
@@ -50,10 +60,11 @@ def prepare_ion_rohf_solns():
     solns = dict()
     for symid in set(cas_symids):
         kw = defs[name]['mol_kwargs'].copy()
-        kw['charge']+=tgt_charge
+        kw['charge'] = tgt_charge
         kw['spin'] = tgt_spin
         mol = M(**kw)
         myhf_ion = scf.ROHF(mol)
+
         # irrep_nelec uses labels not symids as keys
         label = symm.irrep_id2name(mol.groupname, symid)
         myhf_ion.irrep_nelec = myhf.get_irrep_nelec()
@@ -75,16 +86,15 @@ ion_rohf_solns = prepare_ion_rohf_solns()
 
 
 def do_mr_from_ci0(civec, na_nb, symid):
+    assert np.allclose(np.linalg.norm(civec), 1)
     mc = mcscf.CASSCF(ion_rohf_solns[symid], ncas, na_nb)
-    mc.fcisolver.wfnsym = symid
     ecasscf, _, _, _, _ = mc.kernel(ci0=civec)
     enevpt2 = mrpt.NEVPT(mc).kernel()
     return ecasscf, enevpt2
 
 
 ci = mc.fcisolver.ci
-sqop = sqops[int(tgt_spin<0)]
-
+sqop = sqops[tgt_spin_channel]
 
 nelecas_ion = [neleca, nelecb]
 nelecas_ion[tgt_spin_channel]-=tgt_charge
@@ -100,7 +110,7 @@ data = {column:[] for column in columns}
 for irow, iorb in enumerate(range(mc.ncas)):
     symid = cas_symids[iorb]
     if symid not in ion_rohf_solns: continue
-    ci_ion = sqop(ci, mc.ncas, nelecas_ion, iorb)
+    ci_ion = sqop(ci, mc.ncas, (neleca, nelecb), iorb)
     ci_ion/=np.linalg.norm(ci_ion)
     emr = do_mr_from_ci0(ci_ion, nelecas_ion, symid)
     data['iorb'].append(iorb)
